@@ -56,15 +56,16 @@ if __name__ == "__main__":
         print "\nSST Does not work for now!!!\n"
     
     if args.now_switch:
-        sim_start_time = datetime.now()
+        start_time = datetime.now()
     #else:  
-    #    sim_start_time    = datetime(2017,04,01,00,00,00,00) ### CAN ADD TZ INFO 
+    #    start_time    = datetime(2017,04,01,00,00,00,00) ### CAN ADD TZ INFO 
     #    print sim_start_time
+    
 
-    sim_start_time  = sim_start_time + timedelta(days=1)   ## only for LMOS since every day we run for next day
+    start_date      = start_time.strftime('%Y%m%d')
+    sim_start_time  = start_time + timedelta(days=1)   ## only for LMOS since every day we run for next day
     sim_end_time    = sim_start_time + timedelta(hours= sim_length_hour )
 
-    sim_start_date  = sim_start_time.strftime('%Y%m%d')
     
     ## 2) step 2: GFS DATA
     gfs_run = '06'
@@ -72,22 +73,22 @@ if __name__ == "__main__":
     ch_dir(parent_dir)
     mk_dir(gfs_dir)
     ch_dir(gfs_dir)
-    mk_dir(sim_start_date)
-    ch_dir(sim_start_date)
+    mk_dir(start_date)
+    ch_dir(start_date)
 
     #if (args.now_switch or sim_start_time.date()==datetime.now()):
     for i in range(0,download_length_hour+3,3):
-        print "not downloading"
-        #os.system('wget http://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/MT.gfs_CY.'+gfs_run+'/RD.'+sim_start_date+'/PT.grid_DF.gr2/fh.'+str(i).zfill(4) +'_tl.press_gr.0p50deg')
+        #print "not downloading"
+        os.system('wget http://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/MT.gfs_CY.'+gfs_run+'/RD.'+start_date+'/PT.grid_DF.gr2/fh.'+str(i).zfill(4) +'_tl.press_gr.0p50deg')
     
     
     # 3) step 3: MACC date
-    #mac_start_time    = sim_start_time - timedelta(hours= 48)
+    macc_start_time    = sim_start_time - timedelta(days=1)
     ch_dir(parent_dir)
     mk_dir(macc_dir)    
     ch_dir(macc_dir)
-    make_macc_download(str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day))
-    #os.system('sh macc_download.sh')
+    make_macc_download(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
+    os.system('sh macc_download.sh')
     
     # 4) step 4: Run WPS 
     #print(wps_dir)
@@ -104,11 +105,11 @@ if __name__ == "__main__":
     make_wps_namelist(\
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
-    #os.system('./geogrid.exe 2>&1 |tee geogrid.log')
+    os.system('./geogrid.exe 2>&1 |tee geogrid.log')
     os.system('./link_grib.csh '+parent_dir+'/gfs_data/'+sim_start_date+'/*')
     os.system('ln -sf ungrib/Variable_Tables/Vtable.GFS_new.1 Vtable')
-    #os.system('./ungrib.exe 2>&1 |tee ungrib.log')
-    #os.system('./metgrid.exe 2>&1 |tee metgrid.log')
+    os.system('./ungrib.exe 2>&1 |tee ungrib.log')
+    os.system('./metgrid.exe 2>&1 |tee metgrid.log')
 
 
     ### Run real.exe
@@ -119,7 +120,7 @@ if __name__ == "__main__":
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
     
     real_ID  = submit_job('real.exe',112, 0, 'CGRER')
-    wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
+    #wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
    
 
 
