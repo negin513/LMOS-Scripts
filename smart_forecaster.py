@@ -5,14 +5,11 @@ import os
 import argparse
 import glob
 import re
-
 import time
-from datetime import datetime, timedelta
 
-from namelist_maker import make_wps_namelist
-from namelist_maker import make_wrf_namelist
-from qsub_maker import make_qsub
-from job_submitter import submit_job
+from datetime import datetime, timedelta
+from namelist_maker import make_wps_namelist, make_wrf_namelist
+from qsub_maker import submit_job
 from macc_download_maker import make_macc_download
 
 ## What do we do?
@@ -107,11 +104,11 @@ if __name__ == "__main__":
     make_wps_namelist(\
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
-    os.system('./geogrid.exe 2>&1 |tee geogrid.log')
+    #os.system('./geogrid.exe 2>&1 |tee geogrid.log')
     os.system('./link_grib.csh '+parent_dir+'/gfs_data/'+sim_start_date+'/*')
     os.system('ln -sf ungrib/Variable_Tables/Vtable.GFS_new.1 Vtable')
-    os.system('./ungrib.exe 2>&1 |tee ungrib.log')
-    os.system('./metgrid.exe 2>&1 |tee metgrid.log')
+    #os.system('./ungrib.exe 2>&1 |tee ungrib.log')
+    #os.system('./metgrid.exe 2>&1 |tee metgrid.log')
 
 
     ### Run real.exe
@@ -120,9 +117,10 @@ if __name__ == "__main__":
     make_wrf_namelist(\
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
-    make_qsub('real.exe',112)
-    submit_job('run_real.exe.sh')
-
+    
+    real_ID  = submit_job('real.exe',112, 0, 'CGRER')
+    wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
+   
 
 
     
