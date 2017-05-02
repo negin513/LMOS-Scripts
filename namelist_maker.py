@@ -1,10 +1,10 @@
 import os
 
 def make_wps_namelist(start_year,start_month,start_day,end_year,end_month,end_day):
-	start_time = '06:00:00'
-	end_time   = '06:00:00'
-	wps_start_date= str(start_year)+'-'+str(start_month).zfill(2)+'-'+str(start_day).zfill(2)+'_'+ start_time
-	wps_end_date  = str(end_year)  +'-'+str(end_month).zfill(2)  +'-'+str(end_day).zfill(2)  +'_'+ end_time
+	start_hour = '06:00:00'
+	end_hour   = '06:00:00'
+	wps_start_date= str(start_year)+'-'+str(start_month).zfill(2)+'-'+str(start_day).zfill(2)+'_'+ start_hour
+	wps_end_date  = str(end_year)  +'-'+str(end_month).zfill(2)  +'-'+str(end_day).zfill(2)  +'_'+ end_hour
 	wps_file = open('namelist.wps',"wb")
 
 	wps_template =      ( \
@@ -48,12 +48,18 @@ def make_wps_namelist(start_year,start_month,start_day,end_year,end_month,end_da
 				)
 	wps_file.write(wps_template)
 	wps_file.close()
+	print (\
+		"\n******************************************************\n"
+		"namelist.wps is created with:\n" 
+		"start_date  = "+wps_start_date+ "\n"
+		"end_date    = "+wps_end_date+ "\n" 
+		"******************************************************\n\n")
 
 def make_wrf_namelist(start_year,start_month,start_day,end_year,end_month,end_day):
-	start_time = '06:00:00'
-	end_time   = '06:00:00'
-	wrf_start_date= str(start_year)+'-'+str(start_month).zfill(2)+'-'+str(start_day).zfill(2)+'_'+ start_time
-	wef_end_date  = str(end_year)  +'-'+str(end_month).zfill(2)  +'-'+str(end_day).zfill(2)  +'_'+ end_time
+	start_hour = '06:00:00'
+	end_hour   = '06:00:00'
+	wrf_start_date= str(start_year)+'-'+str(start_month).zfill(2)+'-'+str(start_day).zfill(2)+'_'+ start_hour
+	wrf_end_date  = str(end_year)  +'-'+str(end_month).zfill(2)  +'-'+str(end_day).zfill(2)  +'_'+ end_hour
 	wrf_file = open('namelist.input',"wb")
 	wrf_template =      ( \
 				"&time_control\n"
@@ -237,5 +243,11 @@ def make_wrf_namelist(start_year,start_month,start_day,end_year,end_month,end_da
 				)
 	wrf_file.write(wrf_template)
 	wrf_file.close()
+	print (\
+		"\n******************************************************\n"
+		"namelist.wrf is created with:\n" 
+		"start_date  = "+wrf_start_date+ "\n"
+		"end_date    = "+wrf_end_date+ "\n" 
+		"******************************************************\n\n")
 
 
