@@ -11,10 +11,6 @@ from datetime import datetime, timedelta
 from namelist_maker import make_wps_namelist, make_wrf_namelist
 from qsub_maker import submit_job
 from macc_download_maker import make_macc_download, make_macc_inp
-
-
-## What do we do?
-## 1) 
     
 def ch_dir(dir):
 	cmd_line  = "cd "+ dir
@@ -48,6 +44,7 @@ def get_parser():
     	parser.add_argument('-sst', '--sst', help='Get SST analyses grib version 1 format!'  , action="store_true", dest="sst_switch", default=False)
     	parser.add_argument('--forecast','--now', help='Get SST analyses grib version 1 format!' , action="store_true", dest="now_switch", default=True)
     	return parser	
+
 
 if __name__ == "__main__":
 	
@@ -152,8 +149,7 @@ if __name__ == "__main__":
     make_macc_inp(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
     os.system('ln -sf '+ wps_dir+'met_em* .')
     os.system('./mozbc < MACC_LMOS_d01.inp ')
-
-    #wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
+    wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
 
     ## VISUALTIZATION
    
