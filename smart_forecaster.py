@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     #if (args.now_switch or sim_start_time.date()==datetime.now()):
     for i in range(0,download_length_hour+3,3):
-        print "not downloading"
+        print "Downloading GFS DATA..."
 	gfs_link = 'http://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/MT.gfs_CY.'+gfs_run+'/RD.'+start_date+'/PT.grid_DF.gr2/fh.'+str(i).zfill(4) +'_tl.press_gr.0p50deg'
         #os.system('wget '+gfs_link)
 	#subprocess.call(['wget', gfs_link])
