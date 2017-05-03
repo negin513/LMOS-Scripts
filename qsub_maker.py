@@ -30,7 +30,8 @@ def submit_job(exe_name, np, j_ID, q_ID):
                     "export KMP_STACKSIZE=512M\n"
                     "path_run='./'\n"
                     "cd $path_run\n"
-		    "command='/opt/apps/openmpi/2.0.1_parallel_studio-2017.1/bin/mpirun -np "+str(np)+" $path_run "+ exe_name +"'\n"
+                    "command='/opt/apps/openmpi/2.0.1_parallel_studio-2017.1/bin/mpirun -np "+str(np)+"' $path_run'"+ exe_name +"'\n"
+		    #"command='/opt/apps/openmpi/2.0.1_parallel_studio-2017.1/bin/mpirun -np "+str(np)+ " ./"+exe_name+"'\n"
                     "echo $command\n"
                     "exec $command\n"
                     )

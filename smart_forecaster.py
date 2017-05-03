@@ -10,7 +10,8 @@ import time
 from datetime import datetime, timedelta
 from namelist_maker import make_wps_namelist, make_wrf_namelist
 from qsub_maker import submit_job
-from macc_download_maker import make_macc_download
+from macc_download_maker import make_macc_download, make_macc_inp
+
 
 ## What do we do?
 ## 1) 
@@ -25,6 +26,18 @@ def mk_dir(dir):
 	cmd_line  = "mkdir "+ dir
 	#print cmd_line
 	subprocess.call(["mkdir", dir])	
+
+def execute(cmd):
+	#should fix this .....
+    	p = subprocess.Popen(cmd, stdout= subprocess.PIPE, stderr= subprocess.PIPE)
+    	out, err = p.communicate()
+	print out
+	if err or p.returncode:
+		print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		print "Oops... This command failed:   "
+		print cmd
+		print "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+		print err
 
 def get_parser():
     	"""Get parser object for this script."""
@@ -46,6 +59,7 @@ if __name__ == "__main__":
     wps_dir      = parent_dir+ "/WPS/"
     gfs_dir      = parent_dir+ "/gfs_data/"
     macc_dir     = parent_dir+ "/macc_data/"
+    moz_dir      = macc_dir  + "mozbc_vMACC/"
 
 
     sim_length_hour      = 48 # simulation length hours  
@@ -78,19 +92,13 @@ if __name__ == "__main__":
 
     #if (args.now_switch or sim_start_time.date()==datetime.now()):
     for i in range(0,download_length_hour+3,3):
-        #print "not downloading"
-        os.system('wget http://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/MT.gfs_CY.'+gfs_run+'/RD.'+start_date+'/PT.grid_DF.gr2/fh.'+str(i).zfill(4) +'_tl.press_gr.0p50deg')
+        print "not downloading"
+	gfs_link = 'http://tgftp.nws.noaa.gov/SL.us008001/ST.opnl/MT.gfs_CY.'+gfs_run+'/RD.'+start_date+'/PT.grid_DF.gr2/fh.'+str(i).zfill(4) +'_tl.press_gr.0p50deg'
+        #os.system('wget '+gfs_link)
+	#subprocess.call(['wget', gfs_link])
     
     
-    # 3) step 3: MACC date
-    macc_start_time    = sim_start_time - timedelta(days=1)
-    ch_dir(parent_dir)
-    mk_dir(macc_dir)    
-    ch_dir(macc_dir)
-    make_macc_download(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
-    os.system('sh macc_download.sh')
-    
-    # 4) step 4: Run WPS 
+    # 3) step 3: Run WPS 
     #print(wps_dir)
     #print(\
 	#"# ---------------------------------------------------------"
@@ -105,22 +113,49 @@ if __name__ == "__main__":
     make_wps_namelist(\
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
-    os.system('./geogrid.exe 2>&1 |tee geogrid.log')
-    os.system('./link_grib.csh '+parent_dir+'/gfs_data/'+sim_start_date+'/*')
-    os.system('ln -sf ungrib/Variable_Tables/Vtable.GFS_new.1 Vtable')
-    os.system('./ungrib.exe 2>&1 |tee ungrib.log')
-    os.system('./metgrid.exe 2>&1 |tee metgrid.log')
+    
+    ##cmd = ["./geogrid.exe", "2>&1","|tee", "geogrid.log"]
+    ##execute(cmd)
+    
+    #os.system('rm -rf met_em* PFILE* FILE*')
+    #os.system('./geogrid.exe >& geogrid.log')
+    #os.system('./link_grib.csh '+parent_dir+'/gfs_data/'+start_date+'/*')
+    #os.system('ln -sf ungrib/Variable_Tables/Vtable.GFS_new.1 Vtable')
+    #os.system('./ungrib.exe >&  ungrib.log')
+    #os.system('./metgrid.exe 2>&1 |tee metgrid.log')
 
-
-    ### Run real.exe
+    #4) step 4: Run real.exe
     ch_dir(wrf_dir)
     os.system('ln -sf '+ wps_dir + 'met_em* .')
     make_wrf_namelist(\
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
+    #real_ID  = submit_job('real.exe',56 , 0, 'CGRER')
+
+    # 5) step 5: MACC data 
+    macc_start_time    = sim_start_time - timedelta(days=1)
+    ch_dir(parent_dir)
+    mk_dir(macc_dir)    
+    ch_dir(macc_dir)
+    make_macc_download(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
+    os.system('sh macc_download.sh')
+
+    # 6) step 6: run mozbc (This one is dependent on finishing real"
+    #while not os.path.isfile(wrf_dir+"wrfbdy_d01") is False:
+    #print "Waiting for real.exe to finish"
+    #print "Zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+    #time.sleep(300)
     
-    real_ID  = submit_job('real.exe',112, 0, 'CGRER')
+    ch_dir(moz_dir)
+    os.system('ln -sf '+ wrf_dir+'wrfinput_d01 .')
+    os.system('ln -sf '+ wrf_dir+'wrfbdy_d01 .')
+    make_macc_inp(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
+    os.system('ln -sf '+ wps_dir+'met_em* .')
+    os.system('./mozbc < MACC_LMOS_d01.inp ')
+
     #wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
+
+    ## VISUALTIZATION
    
 
 
