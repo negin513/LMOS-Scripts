@@ -111,8 +111,8 @@ if __name__ == "__main__":
             str(sim_start_time.year),str(sim_start_time.month),str(sim_start_time.day),\
             str(sim_end_time.year),str(sim_end_time.month),str(sim_end_time.day))
     
-    ##cmd = ["./geogrid.exe", "2>&1","|tee", "geogrid.log"]
-    ##execute(cmd)
+    ####cmd = ["./geogrid.exe", "2>&1","|tee", "geogrid.log"]
+    ####execute(cmd)
     
     #os.system('rm -rf met_em* PFILE* FILE*')
     #os.system('./geogrid.exe >& geogrid.log')
@@ -121,6 +121,7 @@ if __name__ == "__main__":
     #os.system('./ungrib.exe >&  ungrib.log')
     #os.system('./metgrid.exe 2>&1 |tee metgrid.log')
 
+    #os.system('ln -sf '+ wrf_dir+'wrfinput_d01 .')
     #4) step 4: Run real.exe
     ch_dir(wrf_dir)
     os.system('ln -sf '+ wps_dir + 'met_em* .')
@@ -135,7 +136,7 @@ if __name__ == "__main__":
     mk_dir(macc_dir)    
     ch_dir(macc_dir)
     make_macc_download(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
-    os.system('sh macc_download.sh')
+    #os.system('sh macc_download.sh')
 
     # 6) step 6: run mozbc (This one is dependent on finishing real"
     #while not os.path.isfile(wrf_dir+"wrfbdy_d01") is False:
@@ -149,7 +150,9 @@ if __name__ == "__main__":
     make_macc_inp(str(macc_start_time.year),str(macc_start_time.month),str(macc_start_time.day))
     os.system('ln -sf '+ wps_dir+'met_em* .')
     os.system('./mozbc < MACC_LMOS_d01.inp ')
-    wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
+
+    ch_dir(wrf_dir)
+    #wrf_ID   = submit_job('wrf.exe', 112, real_ID, 'CGRER')
 
     ## VISUALTIZATION
    
