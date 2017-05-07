@@ -5,7 +5,7 @@ def make_macc_download(start_year,start_month,start_day):
  	macc_download = open('macc_download.sh',"wb")
 	macc_template = ( \
 				"#!/bin/bash\n"
-				"LINK=$(wget \"http://ows-server.iek.fz-juelich.de/CAMS_cifs_cb05_1606_lower_fc-3hourly_ModelLevel?service=WCS&version=1.1.2&Request=GetCoverage&identifier=CAMS_"+start_date+"&BoundingBox=-96,36,-81,50,urn:ogc:def:crs:OGC::84&format=application/x-netcdf\" -O MACC_"+start_date+")\n"
+				"LINK=$(wget \"http://ows-server.iek.fz-juelich.de/CAMS_cifs_cb05_1606_lower_fc-3hourly_ModelLevel?service=WCS&version=1.1.2&Request=GetCoverage&identifier=CAMS_"+start_date+"&BoundingBox=-96,36,-81,50,urn:ogc:def:crs:OGC::84&format=application/x-netcdf\" -O MACC_"+start_date+".nc)\n"
 
 				"echo $LINK\n"
 				"eval ${LINK}\n"
